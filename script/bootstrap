@@ -4,6 +4,8 @@ echo java-custom-runtime start
 
 JAVA=./lambda-custom-java-runtime/bin/java
 
+ls -la
+
 echo ${JAVA}
 
 ${JAVA} LambdaApp
