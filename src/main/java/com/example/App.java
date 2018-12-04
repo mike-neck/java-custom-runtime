@@ -3,6 +3,7 @@
  */
 package com.example;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -21,7 +22,6 @@ import java.util.function.UnaryOperator;
 
 public class App implements Runnable {
 
-  private final ExecutorService executor = Executors.newFixedThreadPool(2);
   private final String lambdaRuntimeApi;
 
   private App(final String lambdaRuntimeApi) {
@@ -29,7 +29,7 @@ public class App implements Runnable {
   }
 
   @SuppressWarnings("InfiniteLoopStatement")
-  public static void main(String[] args) throws ExecutionException, InterruptedException {
+  public static void main(String[] args) {
     System.out.println("Start lambda");
     final String awsLambdaRuntimeApi = System.getenv("AWS_LAMBDA_RUNTIME_API");
     if (awsLambdaRuntimeApi == null) {
@@ -37,50 +37,50 @@ public class App implements Runnable {
       System.exit(1);
     }
     final App app = new App(awsLambdaRuntimeApi);
-    final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final Future<?> future = executorService.submit(() -> {
-      while (true) {
-        app.run();
-      }
-    });
-    future.get();
+    while (true) {
+      app.run();
+    }
   }
+
+  private static final Consumer<HttpResponse<String>> showHeaders =
+      response ->
+          response
+              .headers()
+              .map()
+              .entrySet()
+              .stream()
+              .flatMap(entry -> entry.getValue().stream().map(v -> entry.getKey() + ": " + v))
+              .forEach(System.out::println);
+  private static final Consumer<HttpResponse<String>> showBody =
+      response -> System.out.println(response.body());
 
   @Override
   public void run() {
-    final HttpClient httpClient = HttpClient.newBuilder()
-        .executor(executor)
-        .build();
+    final HttpClient httpClient = HttpClient.newHttpClient();
 
-    final HttpRequest getEvent = HttpRequest
-        .newBuilder(URI.create("http://" + lambdaRuntimeApi + "/2018-06-01/runtime/next"))
-        .GET()
-        .build();
+    final HttpRequest getEvent =
+        HttpRequest.newBuilder(
+                URI.create("http://" + lambdaRuntimeApi + "/2018-06-01/runtime/next"))
+            .GET()
+            .build();
 
-    final CompletableFuture<HttpResponse<String>> getFuture = httpClient
-        .sendAsync(getEvent, BodyHandlers.ofString(StandardCharsets.UTF_8));
-    final CompletableFuture<Event<String>> eventFuture = getFuture
-        .thenApply(App::transformToEvent);
-    final CompletableFuture<Event<String>> resultFuture = eventFuture
-        .thenApplyAsync(event -> event.map(new Handler()));
-    final CompletableFuture<HttpResponse<String>> finished = resultFuture
-        .thenApply(event -> event.createRequest(lambdaRuntimeApi))
-        .thenComposeAsync(postReq -> httpClient
-            .sendAsync(postReq, BodyHandlers.ofString(StandardCharsets.UTF_8)));
-
-    final Consumer<HttpResponse<String>> showHeaders = response ->
-      response.headers().map()
-        .entrySet()
-        .stream()
-        .flatMap(entry -> entry.getValue().stream().map(v -> entry.getKey() + ": " + v))
-        .forEach(System.out::println);
-    final Consumer<HttpResponse<String>> showBody = response -> System.out.println(response.body());
-
-    finished.thenAccept(showHeaders.andThen(showBody));
+    try {
+      final HttpResponse<String> response =
+          httpClient.send(getEvent, BodyHandlers.ofString(StandardCharsets.UTF_8));
+      final Event<String> event = transformToEvent(response);
+      final Event<String> result = event.map(new Handler());
+      final HttpRequest request = result.createRequest(lambdaRuntimeApi);
+      final HttpResponse<String> resp =
+          httpClient.send(request, BodyHandlers.ofString(StandardCharsets.UTF_8));
+      showHeaders.andThen(showBody).accept(resp);
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException("failed to run function.", e);
+    }
   }
 
   private static Event<String> transformToEvent(final HttpResponse<String> response) {
-    final String requestId = response.headers().firstValue("Lambda-Runtime-Aws-Request-Id").orElseThrow();
+    final String requestId =
+        response.headers().firstValue("Lambda-Runtime-Aws-Request-Id").orElseThrow();
     return new Event<>(requestId, response.body());
   }
 }
