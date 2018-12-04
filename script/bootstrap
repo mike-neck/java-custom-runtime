@@ -8,4 +8,4 @@ ls -la
 
 echo ${JAVA}
 
-${JAVA} LambdaApp
+${JAVA} -p java-custom-runtime.jar -p lambda.example

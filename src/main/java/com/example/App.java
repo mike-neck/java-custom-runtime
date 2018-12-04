@@ -60,7 +60,7 @@ public class App implements Runnable {
 
     final HttpRequest getEvent =
         HttpRequest.newBuilder(
-                URI.create("http://" + lambdaRuntimeApi + "/2018-06-01/runtime/next"))
+                URI.create("http://" + lambdaRuntimeApi + "/2018-06-01/runtime/invocation/next"))
             .GET()
             .build();
 
