@@ -50,7 +50,7 @@ public class LambdaApp {
             URI.create(
                 "http://"
                     + awsLambdaRuntimeApi
-                    + "/2018-06-01/invocation/"
+                    + "/2018-06-01/runtime/invocation/"
                     + requestId
                     + "/response");
         final HttpRequest request =
