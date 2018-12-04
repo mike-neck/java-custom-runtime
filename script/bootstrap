@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo java-custom-runtime start
+
+ls -la
+ls ./lambda-custom-java-runtime/
+
+JAVA=./lambda-custom-java-runtime/bin/java
+EXECUTABLE=java-custom-runtime.jar
+
+${JAVA} -version
+
+${JAVA} -p ${EXECUTABLE} -m lambda.example

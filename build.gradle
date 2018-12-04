@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+ext {
+    modDir = file("$buildDir/mod")
+    java11 = System.getenv('JAVA_HOME')
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+}
+
+jar {
+    //noinspection GroovyAssignabilityCheck
+    manifest {
+        attributes('Main-Class': 'com.example.App')
+    }
+}
+
+task prepareModDir {
+    doLast {
+        if (!modDir.exists()) {
+            modDir.mkdirs()
+        }
+    }
+}
+
+task showJavaVersion(type: Exec) {
+    commandLine "$java11/bin/java", '-version'
+}
+
+task modJar(type: Exec, dependsOn: [compileJava, 'prepareModDir']) {
+    commandLine "$java11/bin/jar", '-c', '-f', "$modDir/${project.name}.jar", '--main-class', 'com.example.App', '-C', compileJava.destinationDir, '.'
+}
