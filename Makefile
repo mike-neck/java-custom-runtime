@@ -21,4 +21,4 @@ zip:
 	zip lambda.zip Exec.class && \
 	zip -r lambda.zip lambda-custom-java-runtime
 
-build: clean jar runtime bootstrap zip
+build: clean jar runtime bootstrap debug zip
