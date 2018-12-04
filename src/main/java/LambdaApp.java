@@ -33,12 +33,11 @@ public class LambdaApp {
     }
     System.out.println(awsLambdaRuntimeApi);
     final HttpClient client = HttpClient.newHttpClient();
+    System.out.println("client prepared.");
     while (true) {
-      final HttpRequest getEvent =
-          HttpRequest.newBuilder(
-                  URI.create("http://" + awsLambdaRuntimeApi + "/2018-06-01/runtime/next"))
-              .GET()
-              .build();
+      final URI uri = URI.create("http://" + awsLambdaRuntimeApi + "/2018-06-01/runtime/invocation/next");
+      System.out.println("uri : " + uri);
+      final HttpRequest getEvent = HttpRequest.newBuilder(uri).GET().build();
       try {
         final HttpResponse<String> response =
             client.send(getEvent, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
