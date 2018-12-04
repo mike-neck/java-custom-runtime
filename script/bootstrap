@@ -2,26 +2,8 @@
 
 echo java-custom-runtime start
 
-ls -la
-echo
-ls -la ./lambda-custom-java-runtime/
-echo
-echo ${AWS_LAMBDA_RUNTIME_API}
-echo
-echo path
-echo $PATH
-echo
-echo library
-echo ${LD_LIBRARY_PATH}
-echo runtime dir
-echo ${LAMBDA_RUNTIME_DIR}
-
 JAVA=./lambda-custom-java-runtime/bin/java
-EXECUTABLE=java-custom-runtime.jar
 
-echo java version
-${JAVA} -version
-echo java Exec
-${JAVA} Exec
-echo main start
-${JAVA} -p ${EXECUTABLE} -m lambda.example
+echo ${JAVA}
+
+${JAVA} LambdaApp

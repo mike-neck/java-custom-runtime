@@ -14,6 +14,7 @@ bootstrap:
 
 debug:
 	cp ./build/classes/java/main/Exec.class ./build/mod/Exec.class
+	cp ./build/classes/java/main/LambdaApp.class ./build/mod/LambdaApp.class
 
 zip:
 	cd ./build/mod/ && \
