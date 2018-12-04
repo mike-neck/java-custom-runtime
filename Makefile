@@ -19,6 +19,7 @@ debug:
 zip:
 	cd ./build/mod/ && \
 	zip lambda.zip bootstrap java-custom-runtime.jar && \
+	zip lambda.zip LambdaApp.class && \
 	zip lambda.zip Exec.class && \
 	zip -r lambda.zip lambda-custom-java-runtime
 
