@@ -23,5 +23,5 @@ echo java version
 ${JAVA} -version
 echo java Exec
 ${JAVA} Exec
-
+echo main start
 ${JAVA} -p ${EXECUTABLE} -m lambda.example
