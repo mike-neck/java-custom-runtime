@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import java.util.Optional;
+
 public class Exec {
   public static void main(String[] args) {
     final String api = System.getenv("AWS_LAMBDA_RUNTIME_API");
-    System.out.println(api);
+    Optional.ofNullable(api)
+        .ifPresentOrElse(
+            System.out::println, () -> System.out.println("AWS_LAMBDA_RUNTIME_API not found"));
   }
 }
