@@ -3,7 +3,9 @@
 echo java-custom-runtime start
 
 ls -la
-ls ./lambda-custom-java-runtime/
+ls -la ./lambda-custom-java-runtime/
+
+echo ${AWS_LAMBDA_RUNTIME_API}
 
 JAVA=./lambda-custom-java-runtime/bin/java
 EXECUTABLE=java-custom-runtime.jar

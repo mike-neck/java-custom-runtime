@@ -24,12 +24,13 @@ public class App implements Runnable {
   private final ExecutorService executor = Executors.newFixedThreadPool(2);
   private final String lambdaRuntimeApi;
 
-  public App(final String lambdaRuntimeApi) {
+  private App(final String lambdaRuntimeApi) {
     this.lambdaRuntimeApi = lambdaRuntimeApi;
   }
 
   @SuppressWarnings("InfiniteLoopStatement")
   public static void main(String[] args) throws ExecutionException, InterruptedException {
+    System.out.println("Start lambda");
     final String awsLambdaRuntimeApi = System.getenv("AWS_LAMBDA_RUNTIME_API");
     if (awsLambdaRuntimeApi == null) {
       System.out.println("error AWS_LAMBDA_RUNTIME_API is not available.");
@@ -67,13 +68,12 @@ public class App implements Runnable {
         .thenComposeAsync(postReq -> httpClient
             .sendAsync(postReq, BodyHandlers.ofString(StandardCharsets.UTF_8)));
 
-    final Consumer<HttpResponse<String>> showHeaders = response -> {
+    final Consumer<HttpResponse<String>> showHeaders = response ->
       response.headers().map()
-          .entrySet()
-          .stream()
-          .flatMap(entry -> entry.getValue().stream().map(v -> entry.getKey() + ": " + v))
-          .forEach(System.out::println);
-    };
+        .entrySet()
+        .stream()
+        .flatMap(entry -> entry.getValue().stream().map(v -> entry.getKey() + ": " + v))
+        .forEach(System.out::println);
     final Consumer<HttpResponse<String>> showBody = response -> System.out.println(response.body());
 
     finished.thenAccept(showHeaders.andThen(showBody));
