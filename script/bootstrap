@@ -12,4 +12,6 @@ EXECUTABLE=java-custom-runtime.jar
 
 ${JAVA} -version
 
+${JAVA} Exec
+
 ${JAVA} -p ${EXECUTABLE} -m lambda.example
